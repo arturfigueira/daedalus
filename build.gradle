@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+}
+
+group 'com.daedalus'
+version '1.0-SNAPSHOT'
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin : 'java'
+    sourceCompatibility=11
+    targetCompatibility=11
+
+    dependencies {
+        //Spock
+        implementation "org.codehaus.groovy:groovy:3.0.8"
+        testImplementation platform("org.spockframework:spock-bom:2.0-groovy-3.0")
+        testImplementation "org.spockframework:spock-core"
+        testImplementation "org.hamcrest:hamcrest-core:2.2"
+        testImplementation 'com.athaydes:spock-reports:2.0-groovy-3.0'
+
+
+        //Lombok
+        compileOnly 'org.projectlombok:lombok:1.18.20'
+        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        testCompileOnly 'org.projectlombok:lombok:1.18.20'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
