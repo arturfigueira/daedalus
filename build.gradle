@@ -13,6 +13,7 @@ allprojects {
 
 subprojects {
     apply plugin : 'java'
+    apply plugin: 'groovy'
     sourceCompatibility=11
     targetCompatibility=11
 
@@ -24,6 +25,7 @@ subprojects {
         testImplementation "org.hamcrest:hamcrest-core:2.2"
         testImplementation 'com.athaydes:spock-reports:2.0-groovy-3.0'
 
+        implementation 'com.google.code.gson:gson:2.8.7'
 
         //Lombok
         compileOnly 'org.projectlombok:lombok:1.18.20'
@@ -34,5 +36,19 @@ subprojects {
 
     test {
         useJUnitPlatform()
+        exclude "**/*ITSpec*", "**/*IntSpec*"
     }
+
+    task integrationTest(type: Test) {
+        useJUnitPlatform()
+        description = "Execute integration tests."
+        group = "verification"
+        include "**/*ITSpec*", "**/*IntSpec*"
+        mustRunAfter(tasks.named('test'))
+        testLogging {
+            events 'FAILED', 'SKIPPED'
+        }
+    }
+
+    check.dependsOn integrationTest
 }
