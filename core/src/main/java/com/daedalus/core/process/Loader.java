@@ -20,12 +20,14 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Loader {
+
   protected final ElasticClient client;
   protected final DataStore backup;
   protected final Reshaper reshaper;
 
   @NoArgsConstructor
   public static class Builder {
+
     protected ElasticClient client;
     protected DataStore backup = null;
     protected List<DataMapping> mappings;
@@ -86,6 +88,7 @@ public class Loader {
 
   @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
   public static class BulkLoader {
+
     private final Loader loader;
     private final Bulk bulk;
     private int maxElementsPerBulk = 500;
@@ -140,9 +143,12 @@ public class Loader {
       final var dataNodes = reader.read(criteria);
       final var reshapedNodes = this.loader.reshaper.reshape(dataNodes);
 
-      var identifier = reader.getSource() + "_" + criteria.getPage();
-      this.bulk.index(identifier, reshapedNodes);
-      Optional.ofNullable(this.loader.backup).ifPresent(ds -> ds.store(identifier, reshapedNodes));
+      if (!reshapedNodes.isEmpty()) {
+        var identifier = reader.getSource() + "_" + criteria.getPage();
+        this.bulk.index(identifier, reshapedNodes);
+        Optional.ofNullable(this.loader.backup)
+            .ifPresent(ds -> ds.store(identifier, reshapedNodes));
+      }
 
       return reshapedNodes;
     }

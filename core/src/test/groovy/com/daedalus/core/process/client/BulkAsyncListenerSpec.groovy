@@ -12,6 +12,7 @@ import org.elasticsearch.http.HttpResponse
 import org.elasticsearch.index.shard.ShardId
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class BulkAsyncListenerSpec extends Specification {
 
@@ -25,6 +26,20 @@ class BulkAsyncListenerSpec extends Specification {
         sampleReqLine = Mock(RequestLine)
         sampleHttpRes = Mock(HttpResponse)
         httpHost = new HttpHost("localhost", 8080)
+    }
+
+    @Unroll
+    def "listener will throw if constructed with invalid arguments"(localIdentifier, resultsQueue){
+        when:
+        new BulkAsyncListener(localIdentifier, resultsQueue)
+
+        then:
+        thrown(NullPointerException)
+
+        where:
+        localIdentifier | resultsQueue
+        null            | ResultsQueue.unbounded()
+        "sample"        | null
     }
 
     def "after success bulk the request will be added to results"(){
