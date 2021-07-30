@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id "org.sonarqube" version "3.3"
 }
 
 group 'com.daedalus'
@@ -11,9 +12,19 @@ allprojects {
     }
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectKey", "arturfigueira_daedalus"
+        property "sonar.organization", "arturfigueira"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
+
 subprojects {
-    apply plugin : 'java'
+    apply plugin: 'java'
     apply plugin: 'groovy'
+    apply plugin: 'jacoco'
+
     sourceCompatibility=11
     targetCompatibility=11
 
@@ -37,6 +48,7 @@ subprojects {
     test {
         useJUnitPlatform()
         exclude "**/*ITSpec*", "**/*IntSpec*"
+        finalizedBy jacocoTestReport // report is always generated after tests run
     }
 
     task integrationTest(type: Test) {
@@ -49,6 +61,16 @@ subprojects {
             events 'FAILED', 'SKIPPED'
         }
     }
+
+    jacocoTestReport {
+        reports {
+            xml.required = true
+            csv.required = false
+            html.required = true
+        }
+    }
+
+    jacocoTestReport.dependsOn test
 
     check.dependsOn integrationTest
 }
