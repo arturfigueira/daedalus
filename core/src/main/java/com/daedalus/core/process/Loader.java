@@ -1,6 +1,7 @@
 package com.daedalus.core.process;
 
 import com.daedalus.core.data.DataMapping;
+import com.daedalus.core.data.DataParser;
 import com.daedalus.core.data.IncorrectTypeException;
 import com.daedalus.core.process.client.ElasticClient;
 import com.daedalus.core.stream.DataReader;
@@ -9,8 +10,10 @@ import com.daedalus.core.stream.DataStore;
 import com.daedalus.core.stream.DataStreamException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -25,34 +28,58 @@ public class Loader {
   public static class Builder {
     protected ElasticClient client;
     protected DataStore backup = null;
-    protected Reshaper reshaper;
+    protected List<DataMapping> mappings;
+    protected final DataParser.Builder dataParserBuilder = new DataParser.Builder();
 
     public Builder elasticClient(final ElasticClient client) {
-      if (client == null) {
-        throw new IllegalArgumentException("Client must not be null");
-      }
-      this.client = client;
+      this.client =
+          Optional.ofNullable(client)
+              .orElseThrow(() -> new IllegalArgumentException("Client must not be null"));
       return this;
     }
 
     public Builder backupTo(final DataStore backup) {
-      if (client == null) {
-        throw new IllegalArgumentException("backup must not be null");
-      }
-      this.backup = backup;
+      this.backup =
+          Optional.ofNullable(backup)
+              .orElseThrow(() -> new IllegalArgumentException("backup must not be null"));
       return this;
     }
 
-    public Builder mapDataWith(List<DataMapping> mappings) {
+    public Builder locale(final Locale locale) {
+      if (locale == null) {
+        throw new IllegalArgumentException("locale must not be null");
+      }
+      dataParserBuilder.locale(locale);
+      return this;
+    }
+
+    public Builder timeZone(final TimeZone timeZone) {
+      if (timeZone == null) {
+        throw new IllegalArgumentException("timeZone must not be null");
+      }
+      dataParserBuilder.timeZone(timeZone);
+      return this;
+    }
+
+    public Builder dateFormatPattern(final String datePattern) {
+      if (datePattern == null || datePattern.isBlank()) {
+        throw new IllegalArgumentException("datePattern must not be null nor empty");
+      }
+      dataParserBuilder.dateFormat(datePattern);
+      return this;
+    }
+
+    public Builder mapDataWith(final List<DataMapping> mappings) {
       if (mappings == null || mappings.isEmpty()) {
         throw new IllegalArgumentException(
             "Mappings must is required and must contain at least one item");
       }
-      this.reshaper = new Reshaper(mappings);
+      this.mappings = mappings;
       return this;
     }
 
     public Loader build() {
+      final var reshaper = new Reshaper(mappings, dataParserBuilder.create());
       return new Loader(client, backup, reshaper);
     }
   }

@@ -1,45 +1,32 @@
 package com.daedalus.core.data;
 
+import java.util.function.Supplier;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@Getter
 public enum ElasticDataType {
-    BOOLEAN(new BooleanType()),
-    COMPLETION(new CompletionType()),
-    KEYWORD(new TextType()),
-    DATE(new DateType()),
-    TEXT(new TextType()),
-    LONG(new NumberType<>(Long.class)),
-    INTEGER(new NumberType<>(Integer.class)),
-    SHORT(new NumberType<>(Short.class)),
-    BYTE(new NumberType<>(Byte.class)),
-    DOUBLE(new NumberType<>(Double.class)),
-    FLOAT(new NumberType<>(Float.class)),
-    IP(new IpType());
+  BOOLEAN(BooleanType::new),
+  COMPLETION(CompletionType::new),
+  KEYWORD(TextType::new),
+  DATE(DateType::new),
+  TEXT(TextType::new),
+  LONG(() -> new NumberType<>(Long.class)),
+  INTEGER(() -> new NumberType<>(Integer.class)),
+  SHORT(() -> new NumberType<>(Short.class)),
+  BYTE(() -> new NumberType<>(Byte.class)),
+  DOUBLE(() -> new NumberType<>(Double.class)),
+  FLOAT(() -> new NumberType<>(Float.class)),
+  IP(IpType::new);
 
-    private final String id;
-    private final DataType<?> type;
+  private final Supplier<DataType<?>> supplier;
 
-    ElasticDataType(final DataType<?> t){
-        this.id = this.name().toLowerCase();
-        this.type = t;
-    }
+  DataType<?> produce() {
+    return this.supplier.get();
+  }
 
-    public boolean isA(final Object object){
-        return this.type.isA(object);
-    }
-
-    public Object parse(final Object input) throws IncorrectTypeException {
-        return this.type.parse(input);
-    }
-
-    @Override
-    public String toString() {
-        return "DataType{" +
-                "id='" + id + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "DataType{" + this.name() + "}";
+  }
 }
