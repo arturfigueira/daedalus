@@ -66,14 +66,14 @@ class CompletionType implements DataType<Map<String, List<String>>> {
 
     if (object instanceof Map) {
       var mapOfProperties = (Map<?, ?>) object;
-      isCompletion  = Optional.ofNullable(mapOfProperties.get(TERMS_PROPERTY))
-          .map(v-> v instanceof String || this.isListOfStrings(v))
-          .get();
+      isCompletion = Optional.ofNullable(mapOfProperties.get(TERMS_PROPERTY))
+          .map(v -> v instanceof String || this.isListOfStrings(v))
+          .orElse(false);
 
-    }else if(object instanceof List){
+    } else if (object instanceof List) {
       isCompletion = this.isListOfStrings(object);
 
-      if(!isCompletion){
+      if (!isCompletion) {
         isCompletion = ((List<?>) object).stream().allMatch(this::isA);
       }
     }
