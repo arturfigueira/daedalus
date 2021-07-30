@@ -2,7 +2,9 @@ package com.daedalus.core.process
 
 import com.daedalus.core.data.DataMapping
 import com.daedalus.core.data.DataNode
+import com.daedalus.core.data.DataParser
 import com.daedalus.core.data.ElasticDataType
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Title
 import spock.lang.Unroll
@@ -10,22 +12,29 @@ import spock.lang.Unroll
 @Title("Reshaper Specifications")
 class ReshaperSpec extends Specification {
 
+    @Shared DataParser
+
+    def setup() {
+        dataParser = new DataParser.Builder().create()
+    }
+
     @Unroll
-    def "Will throw when constructing with invalid arguments"(mappings){
+    def "Will throw when constructing with invalid arguments"(mappings, parser){
         when:
-        new Reshaper(mappings)
+        new Reshaper(mappings, parser)
 
         then:
         thrown(IllegalArgumentException)
 
         where:
-        mappings << [[] as List<DataMapping>, null]
+        mappings << [[] as List<DataMapping>, null, [new DataMapping("name", ElasticDataType.TEXT)]]
+        parser << [dataParser, dataParser, null]
     }
 
     def "Will throw when reshaping a null"(){
         given:
         def mapping = new DataMapping("name", ElasticDataType.TEXT)
-        def reshaper = new Reshaper([mapping])
+        def reshaper = new Reshaper([mapping], dataParser)
 
         when:
         reshaper.reshape(null)
@@ -38,7 +47,7 @@ class ReshaperSpec extends Specification {
     def "Should thrown when a mapped property is not present at the data input"(){
         given:
         def mapping = new DataMapping("name", ElasticDataType.TEXT)
-        def reshaper = new Reshaper([mapping])
+        def reshaper = new Reshaper([mapping], dataParser)
 
         def dataNode = new DataNode("mock", ["age" : 32])
 
@@ -53,7 +62,7 @@ class ReshaperSpec extends Specification {
         given:
         def isValidMapping = new DataMapping("isValid", ElasticDataType.BOOLEAN)
         def ageMapping = new DataMapping("age", ElasticDataType.SHORT)
-        def reshaper = new Reshaper([isValidMapping, ageMapping])
+        def reshaper = new Reshaper([isValidMapping, ageMapping], dataParser)
 
         def dataNode = new DataNode("mock", ["age" : "32", "isValid" : "0"])
 
@@ -69,7 +78,7 @@ class ReshaperSpec extends Specification {
     def "Should return an empty list when reshaping an empty input"(){
         given:
         def isValidMapping = new DataMapping("isValid", ElasticDataType.BOOLEAN)
-        def reshaper = new Reshaper([isValidMapping])
+        def reshaper = new Reshaper([isValidMapping], dataParser)
 
         when:
         def reshapedData = reshaper.reshape([])

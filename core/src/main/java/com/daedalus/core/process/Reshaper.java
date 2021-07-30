@@ -1,5 +1,6 @@
 package com.daedalus.core.process;
 
+import com.daedalus.core.data.DataParser;
 import com.daedalus.core.data.DataMapping;
 import com.daedalus.core.data.DataNode;
 import com.daedalus.core.data.IncorrectTypeException;
@@ -9,13 +10,18 @@ import java.util.*;
 class Reshaper {
 
   private final Map<String, DataMapping> mappings = new HashMap<>();
+  private final DataParser dataParser;
 
-  public Reshaper(List<DataMapping> mappings) {
+  public Reshaper(List<DataMapping> mappings, final DataParser dataParser) {
     if (mappings == null || mappings.isEmpty()) {
       throw new IllegalArgumentException("List of mapping can't be null nor empty");
     }
     final Set<DataMapping> mappingsSet = new HashSet<>(mappings);
     mappingsSet.forEach(dataMapping -> this.mappings.put(dataMapping.getName(), dataMapping));
+
+    this.dataParser =
+        Optional.ofNullable(dataParser)
+            .orElseThrow(() -> new IllegalArgumentException("A data parser should be provide"));
   }
 
   public List<Map<String, Object>> reshape(final List<DataNode> inputNodes)
@@ -37,15 +43,14 @@ class Reshaper {
       throws SchemaException, IncorrectTypeException {
     final Map<String, Object> reshapedMap = new HashMap<>();
     for (var entry : mappings.entrySet()) {
-      final var propertyKey = entry.getKey();
-      var value = Optional
-          .ofNullable(rawProperties.get(propertyKey))
-          .orElseThrow(
-                  () -> new SchemaException("A value for " + propertyKey + " could not be found")
-          );
+      final var fieldKey = entry.getKey();
+      var value =
+          Optional.ofNullable(rawProperties.get(fieldKey))
+              .orElseThrow(
+                  () -> new SchemaException("A value for " + fieldKey + " could not be found"));
 
-      final var dataType = entry.getValue().getType();
-      reshapedMap.put(propertyKey, dataType.parse(value));
+      final var parsedValue = dataParser.parse(value, entry.getValue().getType());
+      reshapedMap.put(fieldKey, parsedValue);
     }
 
     return reshapedMap;
