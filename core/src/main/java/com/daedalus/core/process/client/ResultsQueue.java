@@ -101,6 +101,6 @@ public class ResultsQueue {
   public Result drain() {
     return (this.timeout > 0)
         ? this.queue.poll(this.timeout, TimeUnit.MILLISECONDS)
-        : this.queue.take();
+        : this.queue.poll();
   }
 }

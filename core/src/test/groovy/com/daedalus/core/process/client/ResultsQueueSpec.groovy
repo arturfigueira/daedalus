@@ -96,6 +96,17 @@ class ResultsQueueSpec extends Specification {
         drainedResult == null
     }
 
+    def "Should throws when adding null to the queue"(){
+        given:
+        def bulkResults = ResultsQueue.unbounded()
+
+        when:
+        bulkResults.add(null)
+
+        then:
+        thrown(NullPointerException)
+    }
+
     def "Add will occur if room is made available before timeout happens"(){
         given:
         def bulkResults = new ResultsQueue(1, 250)
