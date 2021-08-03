@@ -9,7 +9,11 @@ import java.util.Optional;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
+/**
+ * Helper class to prepare and send bulk request to an elastic search index.
+ */
 class Bulk {
+
   protected final String index;
   protected final ElasticClient client;
 
@@ -33,11 +37,11 @@ class Bulk {
             .orElseThrow(
                 () -> new IllegalArgumentException("identifier should not be null nor empty"));
 
-    if(data == null){
+    if (data == null) {
       throw new IllegalArgumentException("data should not be null");
     }
 
-    if(data.isEmpty()){
+    if (data.isEmpty()) {
       return;
     }
 

@@ -30,7 +30,7 @@ The last release contains the following plugins:
 
 
 ### Client Connections
-Daedalus won't be responsible to manage elastic search connections, this must be done externally by the application that is adopting daedalus. The library is designed with [Elastic Search High Level Rest Client for Java](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high.html) in mind but is also open to custom client implementations.
+Daedalus won't be responsible to manage elastic search connections, this must be done externally by the application that is adopting daedalus. The library is designed with [Elastic Search Low Level Rest Client for Java](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-low.html) in mind, but is also open to custom client implementations over the same Low level API, provided by Elastic Search
 
 Core module offers a ElasticClient interface, which contains the basic structure that a custom client must have. The library also offers a concrete implementation for Elastic's High-Level Rest client.
 ```java

@@ -5,8 +5,16 @@ import com.daedalus.core.data.DataMapping;
 import com.daedalus.core.data.DataNode;
 import com.daedalus.core.data.IncorrectTypeException;
 
+import com.daedalus.core.stream.DataSource;
 import java.util.*;
 
+/**
+ * An object responsible to parse {@link DataNode}  into a map of properties / values, based on an
+ * elastic search list of {@link DataMapping}.
+ * <p>
+ * Its main usage is while reading an unformatted data from a {@link DataSource} , parsing it into
+ * an indexable data structure.
+ */
 class Reshaper {
 
   private final Map<String, DataMapping> mappings = new HashMap<>();
