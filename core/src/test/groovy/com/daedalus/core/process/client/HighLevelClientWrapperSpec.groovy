@@ -7,7 +7,6 @@ import org.apache.http.client.CredentialsProvider
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
-import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -15,15 +14,15 @@ import java.util.concurrent.Executor
 
 class HighLevelClientWrapperSpec extends Specification {
 
-    @Shared RestHighLevelClient sampleClient
+    static RestHighLevelClient CLIENT
 
-    def setup(){
+    def setupSpec(){
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
         credentialsProvider.setCredentials(AuthScope.ANY,
                 new UsernamePasswordCredentials("elastic","38nuu9Nue3593"));
 
-        sampleClient = new RestHighLevelClient(
+        CLIENT = new RestHighLevelClient(
                 RestClient.builder(
                         new HttpHost("localhost", 4200, "http"))
                         .setHttpClientConfigCallback(
@@ -44,12 +43,10 @@ class HighLevelClientWrapperSpec extends Specification {
         thrown(IllegalArgumentException)
 
         where:
-        client      | capacity      | timeout       | executor
-        null        | 1             | 10            | Mock(Executor.class)
-        sampleClient| 0             | 10            | Mock(Executor.class)
-        sampleClient| -1            | 10            | Mock(Executor.class)
-        sampleClient| 10            | 0             | Mock(Executor.class)
-        sampleClient| 10            | -1            | Mock(Executor.class)
-        sampleClient| 10            | 10            | null
+        client  | capacity      | timeout       | executor
+        null    | 1             | 10            | Mock(Executor.class)
+        CLIENT  | -1            | 10            | Mock(Executor.class)
+        CLIENT  | 10            | -1            | Mock(Executor.class)
+        CLIENT  | 10            | 10            | null
     }
 }
