@@ -2,18 +2,18 @@ package com.daedalus.core.process;
 
 import com.daedalus.core.data.DataParser;
 import com.daedalus.core.data.DataMapping;
-import com.daedalus.core.data.DataNode;
+import com.daedalus.core.data.Document;
 import com.daedalus.core.data.IncorrectTypeException;
 
 import com.daedalus.core.stream.DataSource;
 import java.util.*;
 
 /**
- * An object responsible to parse {@link DataNode}  into a map of properties / values, based on an
+ * An object responsible to parse {@link Document} into a map of properties / values, based on an
  * elastic search list of {@link DataMapping}.
  * <p>
- * Its main usage is while reading an unformatted data from a {@link DataSource} , parsing it into
- * an indexable data structure.
+ * Its main usage is while reading an unformatted data from a {@link DataSource}, parsing it into an
+ * indexable data structure.
  */
 class Reshaper {
 
@@ -32,14 +32,14 @@ class Reshaper {
             .orElseThrow(() -> new IllegalArgumentException("A data parser should be provide"));
   }
 
-  public List<Map<String, Object>> reshape(final List<DataNode> inputNodes)
+  public List<Map<String, Object>> reshape(final List<Document> documents)
       throws SchemaException, IncorrectTypeException {
-    if (inputNodes == null) {
+    if (documents == null) {
       throw new IllegalArgumentException("Nodes to be reshaped can't be null");
     }
 
     final ArrayList<Map<String, Object>> outputNodes = new ArrayList<>();
-    for (var node : inputNodes) {
+    for (var node : documents) {
       final var reshapedProps = this.propertiesReshape(node.getProperties());
       outputNodes.add(reshapedProps);
     }
