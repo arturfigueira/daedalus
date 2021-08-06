@@ -5,6 +5,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Represents a mapping between a property and its {@link ElasticDataType}.
+ *
+ * This object is used to describe a how a index/type is structured within an index
+ */
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode

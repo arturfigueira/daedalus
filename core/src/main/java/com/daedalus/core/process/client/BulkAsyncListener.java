@@ -13,6 +13,9 @@ import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 
+/**
+ * Concrete implementation of of Elastic search {@link BulkProcessor.Listener}
+ */
 class BulkAsyncListener implements BulkProcessor.Listener {
 
   private final String localIdentifier;

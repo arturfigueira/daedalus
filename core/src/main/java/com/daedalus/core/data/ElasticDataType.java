@@ -4,6 +4,12 @@ import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Represents the data types supported by Elastic Search
+ * <p>
+ * A {@link ElasticDataType} is mainly used to identify and  parse data to a specific format, that
+ * is supported by Elastic Search
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ElasticDataType {
   BOOLEAN(BooleanType::new),
