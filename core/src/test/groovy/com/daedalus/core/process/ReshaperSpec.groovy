@@ -1,7 +1,7 @@
 package com.daedalus.core.process
 
 import com.daedalus.core.data.DataMapping
-import com.daedalus.core.data.DataNode
+import com.daedalus.core.data.Document
 import com.daedalus.core.data.DataParser
 import com.daedalus.core.data.ElasticDataType
 import spock.lang.Shared
@@ -44,30 +44,30 @@ class ReshaperSpec extends Specification {
 
     }
 
-    def "Should thrown when a mapped property is not present at the data input"(){
+    def "Should thrown when a mapped property is not present at the input document"(){
         given:
         def mapping = new DataMapping("name", ElasticDataType.TEXT)
         def reshaper = new Reshaper([mapping], dataParser)
 
-        def dataNode = new DataNode("mock", ["age" : 32])
+        def document = new Document("mock", ["age": 32])
 
         when:
-        reshaper.reshape([dataNode])
+        reshaper.reshape([document])
 
         then:
         thrown(SchemaException)
     }
 
-    def "Should reshape a data node based on given mappings"(){
+    def "Should reshape a document based on given mappings"(){
         given:
         def isValidMapping = new DataMapping("isValid", ElasticDataType.BOOLEAN)
         def ageMapping = new DataMapping("age", ElasticDataType.SHORT)
         def reshaper = new Reshaper([isValidMapping, ageMapping], dataParser)
 
-        def dataNode = new DataNode("mock", ["age" : "32", "isValid" : "0"])
+        def document = new Document("mock", ["age": "32", "isValid": "0"])
 
         when:
-        def reshapedData = reshaper.reshape([dataNode])
+        def reshapedData = reshaper.reshape([document])
 
         then:
         reshapedData.size() == 1

@@ -1,7 +1,7 @@
 package com.daedalus.core.process
 
 import com.daedalus.core.data.DataMapping
-import com.daedalus.core.data.DataNode
+import com.daedalus.core.data.Document
 import com.daedalus.core.data.DataParser
 import com.daedalus.core.data.ElasticDataType
 import spock.lang.Shared
@@ -31,9 +31,9 @@ class SchemaSpec extends Specification {
         parser << [dataParser, dataParser, null]
     }
 
-    def "Should convict when a data is missing a schema properties"() {
+    def "Should convict when a document is missing a schema properties"() {
         given:
-        def data = new DataNode("mock", [name: "John Doe"])
+        def document = new Document("mock", [name: "John Doe"])
 
         def mappings = [new DataMapping("name", ElasticDataType.TEXT),
                         new DataMapping("age", ElasticDataType.INTEGER)]
@@ -41,16 +41,16 @@ class SchemaSpec extends Specification {
         def schema = new Schema(mappings, dataParser)
 
         when:
-        schema.convict(data)
+        schema.convict(document)
 
         then:
         thrown(SchemaException)
     }
 
     @Unroll
-    def "Should convict when data is null"() {
+    def "Should convict when a document property is null"() {
         given:
-        def data = new DataNode("mock", [name: null])
+        def data = new Document("mock", [name: null])
         def schema = new Schema([new DataMapping("name", datatype)], dataParser)
 
         when:
@@ -71,7 +71,7 @@ class SchemaSpec extends Specification {
     @Unroll
     def "Should convict due to #val not being a #datatype"(val, datatype) {
         given:
-        def data = new DataNode("mock", [value: val])
+        def data = new Document("mock", [value: val])
         def schema = new Schema([new DataMapping("value", datatype)], dataParser)
 
         when:
@@ -100,7 +100,7 @@ class SchemaSpec extends Specification {
     @Unroll
     def "Should not convict when a data matches datatype definition"(val, datatype) {
         given:
-        def data = new DataNode("mock", [value: val])
+        def data = new Document("mock", [value: val])
         def schema = new Schema([new DataMapping("value", datatype)], dataParser)
 
         when:

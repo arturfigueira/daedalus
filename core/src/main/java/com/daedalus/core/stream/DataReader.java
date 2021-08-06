@@ -1,6 +1,6 @@
 package com.daedalus.core.stream;
 
-import com.daedalus.core.data.DataNode;
+import com.daedalus.core.data.Document;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -89,5 +89,5 @@ public interface DataReader {
    * @return The list of data nodes that fulfill the reader criteria
    * @throws DataStreamException if it was not able to read the data
    */
-  List<DataNode> read(final Criteria readerCriteria) throws DataStreamException;
+  List<Document> read(final Criteria readerCriteria) throws DataStreamException;
 }

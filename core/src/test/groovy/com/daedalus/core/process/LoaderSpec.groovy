@@ -1,7 +1,7 @@
 package com.daedalus.core.process
 
 import com.daedalus.core.data.DataMapping
-import com.daedalus.core.data.DataNode
+import com.daedalus.core.data.Document
 import com.daedalus.core.data.ElasticDataType
 import com.daedalus.core.process.client.ElasticClient
 import com.daedalus.core.stream.DataReader
@@ -109,7 +109,7 @@ class LoaderSpec extends Specification {
         dataSource.next() >> dataReader
 
         dataReader.getSource() >> "mockReader"
-        dataReader.read(_) >>> [[new DataNode("1", ["name": "Lord of The Rings"])], []]
+        dataReader.read(_) >>> [[new Document("1", ["name": "Lord of The Rings"])], []]
 
         when:
         loader.toIndex("books").from(dataSource)
@@ -132,9 +132,9 @@ class LoaderSpec extends Specification {
         dataSource.next() >> dataReader
 
         dataReader.getSource() >> "mockReader"
-        dataReader.read(_) >>> [ [new DataNode("1", ["name": "Lord of The Rings"])],
-                                 [new DataNode("2", ["name": "Gates of Fire"])],
-                                 []]
+        dataReader.read(_) >>> [[new Document("1", ["name": "Lord of The Rings"])],
+                                [new Document("2", ["name": "Gates of Fire"])],
+                                []]
 
         when:
         loader.toIndex("books", 1).from(dataSource)

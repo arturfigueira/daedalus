@@ -1,6 +1,6 @@
 package com.daedalus.plugins.json;
 
-import com.daedalus.core.data.DataNode;
+import com.daedalus.core.data.Document;
 import com.daedalus.core.stream.DataReader;
 import com.daedalus.core.stream.DataStreamException;
 import com.google.gson.Gson;
@@ -31,8 +31,8 @@ public class JsonFileReader implements DataReader {
     }
 
     @Override
-    public List<DataNode> read(final Criteria readerCriteria) throws DataStreamException {
-        final var dataNodes = new ArrayList<DataNode>();
+    public List<Document> read(final Criteria readerCriteria) throws DataStreamException {
+        final var dataNodes = new ArrayList<Document>();
         try(var is = Files.newInputStream(Path.of(this.path));
             var reader = new JsonReader(new InputStreamReader(is, this.charset))) {
             var cursor = 0;
@@ -40,7 +40,7 @@ public class JsonFileReader implements DataReader {
             reader.beginArray();
             while (cursor <= readerCriteria.until() && reader.hasNext()){
                 if(cursor >= readerCriteria.startAt()){
-                    var dataNode = new DataNode(this.path, this.readElement(reader));
+                    var dataNode = new Document(this.path, this.readElement(reader));
                     dataNodes.add(dataNode);
                 }else{
                    this.ignoreElement(reader);
