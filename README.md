@@ -28,6 +28,20 @@ The last release contains the following plugins:
 |---------------|---------------|-----------|------------|
 | JsonSource    | File          | JSON      | Reads all files from a specified directory at the file system, converting its content to JSON |
 
+### Available DataTypes
+At the actual state, not all elastic data types have been implemented yet. Below there`s a list with all data types that the library is able to parse: 
+- Boolean
+- Completion
+- Keyword
+- Text
+- Integer
+- Long
+- Short
+- Byte
+- Float
+- Date
+- IP
+
 
 ### Client Connections
 Daedalus won't be responsible to manage elastic search connections, this must be done externally by the application that is adopting daedalus. The library is designed with [Elastic Search Low Level Rest Client for Java](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-low.html) in mind, but is also open to custom client implementations over the same Low level API, provided by Elastic Search
