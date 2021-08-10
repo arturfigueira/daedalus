@@ -57,8 +57,10 @@ class Reshaper {
               .orElseThrow(
                   () -> new SchemaException("A value for " + fieldKey + " could not be found"));
 
-      final var parsedValue = dataParser.parse(value, entry.getValue().getType());
-      reshapedMap.put(fieldKey, parsedValue);
+      var mapping = entry.getValue();
+      final var parsedValue = dataParser.parse(value, mapping.getType());
+
+      reshapedMap.put(mapping.getOutputName(), parsedValue);
     }
 
     return reshapedMap;
