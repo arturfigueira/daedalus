@@ -46,43 +46,83 @@ class BulkSpec extends Specification {
 
         where:
         identifier  | data
-        ""          | [["mock": 1]]
-        "   "       | [["mock": 1]]
-        null        | [["mock": 1]]
+        ""          | Reshaper.ReshapedData.withoutType([["mock": 1]])
+        "   "       | Reshaper.ReshapedData.withoutType([["mock": 1]])
+        null        | Reshaper.ReshapedData.withoutType([["mock": 1]])
         "ABC"       | null
     }
 
     def "Nothing will be indexed if data is empty"(){
         given:
         def bulk = new Bulk("index", sampleClient)
+        def emptyReshapedData = new Reshaper.ReshapedData("", [])
 
         when:
-        bulk.index("mock", [])
+        bulk.index("mock", emptyReshapedData)
 
         then:
         0 * sampleClient.index
     }
 
     @Unroll
-    def "Bulk will index all data as Json"(data){
+    def "Bulk will index all data as Json"(data, expected){
         given:
         def bulk = new Bulk("sampleIndex", sampleClient)
+        def rehapedFata = Reshaper.ReshapedData.withoutType(data)
 
         when:
-        bulk.index("mock", data)
+        bulk.index("mock", rehapedFata)
 
         then:
         1 * sampleClient.index("mock", {
-            it.size() == data.size()
-                    && it.findAll { it.index != "sampleIndex" }.isEmpty()
-                    && it.findAll { it.contentType.shortName() != "json" }.isEmpty()
+            it.collect { it.source().utf8ToString() }.join(",") == expected
+            && it.findAll { it.index != "sampleIndex" }.isEmpty()
+            && it.findAll { it.contentType.shortName() != "json" }.isEmpty()
         })
 
         where:
         data << [
                 [["name": "John", "Surname" : "Doe", "age": 28, "enabled": true]],
                 [["name": "John"], ["name": "Sue"]],
-                [["Country": "Brazil"], ["ExchRate": 5.0125]]
+                [["country": "Brazil", "exchRate": 5.0125], ["country": "UK", "exchRate": 1.025]]
+        ]
+
+        expected << [
+                '{"name":"John","Surname":"Doe","age":28,"enabled":true}',
+                '{"name":"John"},{"name":"Sue"}',
+                '{"country":"Brazil","exchRate":5.0125},{"country":"UK","exchRate":1.025}'
+        ]
+    }
+
+    @Unroll
+    def "Bulk will index to a type all data as Json"(type,data, expected){
+        given:
+        def bulk = new Bulk("sampleIndex", sampleClient)
+        def rehapedFata = new Reshaper.ReshapedData(type, data)
+
+        when:
+        bulk.index("mock", rehapedFata)
+
+        then:
+        1 * sampleClient.index("mock", {
+            it.collect { it.source().utf8ToString() }.join(",") == expected
+            && it.findAll { it.index != "sampleIndex" }.isEmpty()
+            && it.findAll { it.contentType.shortName() != "json" }.isEmpty()
+        })
+
+        where:
+        data << [
+                [["name": "John", "Surname" : "Doe", "age": 28, "enabled": true]],
+                [["name": "John"], ["name": "Sue"]],
+                [["country": "Brazil", "exchRate": 5.0125], ["country": "UK", "exchRate": 1.025]]
+        ]
+
+        type << ["account", "user", "currency"]
+
+        expected << [
+                '{"account":{"name":"John","Surname":"Doe","age":28,"enabled":true}}',
+                '{"user":{"name":"John"}},{"user":{"name":"Sue"}}',
+                '{"currency":{"country":"Brazil","exchRate":5.0125}},{"currency":{"country":"UK","exchRate":1.025}}'
         ]
     }
 }

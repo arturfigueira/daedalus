@@ -7,32 +7,54 @@ import com.daedalus.core.data.IncorrectTypeException;
 
 import com.daedalus.core.stream.DataSource;
 import java.util.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
  * An object responsible to parse {@link Document} into a map of properties / values, based on an
- * elastic search list of {@link DataMapping}.
+ * list of {@link DataMapping}.
  * <p>
  * Its main usage is while reading an unformatted data from a {@link DataSource}, parsing it into an
- * indexable data structure.
+ * indexable data structure, expected by the defined type/index.
+ * <p>
+ * If no index is provided, {@link Reshaper} will proceed as if the documents are directly under the
+ * index, instead of type. For these cases, where no type is require, use the utility static method
+ * {@link #withoutType(List, DataParser)} to create instances of {@link Reshaper}
  */
 class Reshaper {
 
   private final Map<String, DataMapping> mappings = new HashMap<>();
   private final DataParser dataParser;
+  private final String indexType;
 
-  public Reshaper(List<DataMapping> mappings, final DataParser dataParser) {
-    if (mappings == null || mappings.isEmpty()) {
-      throw new IllegalArgumentException("List of mapping can't be null nor empty");
+  @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+  @Getter
+  static class ReshapedData {
+
+    private final String type;
+    private final List<Map<String, Object>> documents;
+
+    static ReshapedData withoutType(final List<Map<String, Object>> documents) {
+      return new ReshapedData("", documents);
     }
-    final Set<DataMapping> mappingsSet = new HashSet<>(mappings);
-    mappingsSet.forEach(dataMapping -> this.mappings.put(dataMapping.getName(), dataMapping));
-
-    this.dataParser =
-        Optional.ofNullable(dataParser)
-            .orElseThrow(() -> new IllegalArgumentException("A data parser should be provide"));
   }
 
-  public List<Map<String, Object>> reshape(final List<Document> documents)
+  public static Reshaper withoutType(@NonNull final List<DataMapping> mappings,
+      @NonNull final DataParser dataParser) {
+    return new Reshaper("", mappings, dataParser);
+  }
+
+  public Reshaper(@NonNull final String indexType, @NonNull final List<DataMapping> mappings,
+      @NonNull final DataParser dataParser) {
+    this.indexType = indexType;
+    this.dataParser = dataParser;
+    final Set<DataMapping> mappingsSet = new HashSet<>(mappings);
+    mappingsSet.forEach(dataMapping -> this.mappings.put(dataMapping.getName(), dataMapping));
+  }
+
+  public ReshapedData reshape(final List<Document> documents)
       throws SchemaException, IncorrectTypeException {
     if (documents == null) {
       throw new IllegalArgumentException("Nodes to be reshaped can't be null");
@@ -44,7 +66,7 @@ class Reshaper {
       outputNodes.add(reshapedProps);
     }
 
-    return outputNodes;
+    return new ReshapedData(indexType, outputNodes);
   }
 
   private Map<String, Object> propertiesReshape(final Map<String, Object> rawProperties)

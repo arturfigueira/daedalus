@@ -49,7 +49,7 @@ class LoaderSpec extends Specification {
         given:
         def loader = new Loader.Builder()
                 .elasticClient(validClient)
-                .mapDataWith(validMappings)
+                .dataMapping(validMappings)
                 .build()
 
         when:
@@ -64,34 +64,74 @@ class LoaderSpec extends Specification {
 
     }
 
-    @Unroll
-    def "loader builder should throws with invalid arguments"(client,
-                                                              dataStore,
-                                                              locale,
-                                                              timeZone,
-                                                              dataFormat,
-                                                              mappings){
+    def "loader builder should throws when providing null dataStore"(){
         when:
-        new Loader.Builder()
-                .elasticClient(client)
-                .backupTo(dataStore)
-                .locale(locale)
-                .timeZone(timeZone)
-                .dateFormatPattern(dataFormat)
-                .mapDataWith(mappings)
-                .build()
+        new Loader.Builder().dataStore(null)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "loader builder should throws when providing null client"(){
+        when:
+        new Loader.Builder().elasticClient(null)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "loader builder should throws when providing null locale"(){
+        when:
+        new Loader.Builder().locale(null)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "loader builder should throws when providing null timeZone"(){
+        when:
+        new Loader.Builder().timeZone(null)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    @Unroll
+    def "loader builder should throws when providing null or empty format"(format){
+        when:
+        new Loader.Builder().dateFormatPattern(null)
 
         then:
         thrown(IllegalArgumentException)
 
         where:
-        client << [null, validClient, validClient, validClient, validClient, validClient, validClient, validClient ]
-        dataStore << [validDataStore, null, validDataStore, validDataStore, validDataStore, validDataStore, validDataStore, validDataStore]
-        locale << [Locale.getDefault(), Locale.getDefault(), null, Locale.getDefault(), Locale.getDefault(), Locale.getDefault(), Locale.getDefault(), Locale.getDefault()]
-        timeZone << [TimeZone.getDefault(), TimeZone.getDefault(), TimeZone.getDefault(), null, TimeZone.getDefault(), TimeZone.getDefault(), TimeZone.getDefault(), TimeZone.getDefault() ]
-        dataFormat << [validDateFormat, validDateFormat, validDateFormat, validDateFormat, null, " ", validDateFormat, validDateFormat ]
-        mappings << [validMappings, validMappings, validMappings, validMappings, validMappings, validMappings, [], null ]
+        format << [null, "", "   "]
     }
+
+    @Unroll
+    def "loader builder should throws when providing null or empty type"(type){
+        when:
+        new Loader.Builder().toType(null)
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        type << [null, "", "   "]
+    }
+
+    @Unroll
+    def "loader builder should throws when providing null or empty mappings"(mappings){
+        when:
+        new Loader.Builder().dataMapping(null)
+
+        then:
+        thrown(IllegalArgumentException)
+
+        where:
+        mappings << [null, []]
+    }
+
 
 
     def "when a dataStore is provided a backup to it should occurs"(){
@@ -99,8 +139,8 @@ class LoaderSpec extends Specification {
         def dataStore = Mock(DataStore)
         def loader = new Loader.Builder()
                 .elasticClient(validClient)
-                .mapDataWith(validMappings)
-                .backupTo(dataStore)
+                .dataMapping(validMappings)
+                .dataStore(dataStore)
                 .build()
 
         def dataReader = Mock(DataReader)
@@ -115,7 +155,7 @@ class LoaderSpec extends Specification {
         loader.toIndex("books").from(dataSource)
 
         then:
-        1 * dataStore.store('mockReader_0',[['name':'Lord of The Rings']])
+        1 * dataStore.store('mockReader_0',["":[['name':'Lord of The Rings']]])
     }
 
     def "loader will split in batches depending on the max elements per bulk request"(){
@@ -123,7 +163,7 @@ class LoaderSpec extends Specification {
         def elasticClient = Mock(ElasticClient)
         def loader = new Loader.Builder()
                 .elasticClient(elasticClient)
-                .mapDataWith(validMappings)
+                .dataMapping(validMappings)
                 .build()
 
         def dataReader = Mock(DataReader)

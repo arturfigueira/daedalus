@@ -39,10 +39,10 @@ class JsonAsyncFileStoreITSpec extends Specification {
     def "When a filename is not provided the file should stored with random name"(){
         given:
         def asyncFileStore = new JsonAsyncFileStore(tempDir.getAbsolutePath(), 10000)
-        def data1 = ["name": "John Doe"]
+        def document = ["name": "John Doe"]
 
         when:
-        def promise = asyncFileStore.store([data1])
+        def promise = asyncFileStore.store([document])
 
         then:
         promise.get().isStored()
@@ -55,12 +55,13 @@ class JsonAsyncFileStoreITSpec extends Specification {
         def asyncFileStore = new JsonAsyncFileStore(tempDir.getAbsolutePath(), 10000)
         def user1 = ["name": "John Doe", "age": 25, "isResident": true]
         def user2 = ["name": "Joanna Doe", "age": 32, "isResident": false]
-        def data = [user1, user2]
+        def documents = [user1, user2]
+        def type = ["users" : documents ]
 
-        def expected = new Gson().toJson(data)
+        def expected = new Gson().toJson(type)
 
         when:
-        def promise = asyncFileStore.store(data)
+        def promise = asyncFileStore.store(type)
 
         then:
         promise.get().isStored()
@@ -72,11 +73,13 @@ class JsonAsyncFileStoreITSpec extends Specification {
         def asyncFileStore = new JsonAsyncFileStore(tempDir.getAbsolutePath(), 1)
         def user1 = ["name": "John Doe", "age": 25, "isResident": true]
 
-        def arr = [];
-        1000000.times {arr.add(user1)}
+        def documents = [];
+        1000000.times {documents.add(user1)}
+
+        def indexType = ["users" : documents ]
 
         when:
-        def asyncStore = asyncFileStore.store(arr)
+        def asyncStore = asyncFileStore.store(indexType)
         def isSaved = asyncStore.get()
 
         then:

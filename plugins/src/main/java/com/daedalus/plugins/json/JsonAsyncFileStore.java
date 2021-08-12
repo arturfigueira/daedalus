@@ -1,22 +1,23 @@
 package com.daedalus.plugins.json;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 import com.daedalus.core.stream.DataStore;
 import com.daedalus.core.stream.StoreResult;
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
 
 public class JsonAsyncFileStore implements DataStore {
     private final String storePath;
@@ -36,7 +37,7 @@ public class JsonAsyncFileStore implements DataStore {
     }
 
     @Override
-    public Future<StoreResult> store(String identifier, List<Map<String, Object>> data) {
+    public Future<StoreResult> store(String identifier, Map<String, Object> data) {
         if(isArgumentsInvalid(identifier, data)){
             throw new IllegalArgumentException("filename and data must not be null. filename must not be empty");
         }
@@ -101,12 +102,12 @@ public class JsonAsyncFileStore implements DataStore {
         };
     }
 
-    private static boolean isArgumentsInvalid(String filename, List<Map<String, Object>> data) {
+    private static boolean isArgumentsInvalid(String filename, Map<String, Object> data) {
         return filename == null || filename.isEmpty() || data == null;
     }
 
     @Override
-    public Future<StoreResult> store(List<Map<String, Object>> data) {
+    public Future<StoreResult> store(Map<String, Object> data) {
         return this.store(UUID.randomUUID().toString(), data);
     }
 }

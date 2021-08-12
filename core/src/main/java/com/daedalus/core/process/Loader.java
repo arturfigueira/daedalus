@@ -3,6 +3,7 @@ package com.daedalus.core.process;
 import com.daedalus.core.data.DataMapping;
 import com.daedalus.core.data.DataParser;
 import com.daedalus.core.data.IncorrectTypeException;
+import com.daedalus.core.process.Reshaper.ReshapedData;
 import com.daedalus.core.process.client.ElasticClient;
 import com.daedalus.core.stream.DataReader;
 import com.daedalus.core.stream.DataSource;
@@ -25,26 +26,33 @@ import lombok.RequiredArgsConstructor;
  * It does not contains a public constructor and should be created using {@link Builder}, which
  * allows to set all options or just rely on defaults.
  * <p>
+ * Data can be indexed directly to an Index or into a Type. This should be decided when creating a
+ * new instance of {@link Loader} as this is an immutable configuration.
+ * <p>
  * For bulk loading, loader has available a companion class {@link BulkLoader}. This companion is
- * able to read data from an external source, process it, convert it a indexable format and load it
- * in configurable batches to an elastic search index.
+ * able to read data from an external source, process it, convert it into an indexable format and
+ * index it in configurable batches to an elastic search index.
+ * <p>
  */
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Loader {
+
+  private static final int DEFAULT_MAX_ELEMENTS = 500;
 
   protected final ElasticClient client;
   protected final DataStore backup;
   protected final Reshaper reshaper;
 
   /**
-   * Returns a new {@link Builder} instance to help with creating a {@link Loader} Allow setting the
-   * basic Loader options.
+   * Returns a new {@link Builder} instance to help with creating a {@link Loader}. Allow setting
+   * the basic Loader options.
    */
   @NoArgsConstructor
   public static class Builder {
 
     protected ElasticClient client;
     protected DataStore backup = null;
+    protected String type = null;
     protected List<DataMapping> mappings;
     protected final DataParser.Builder dataParserBuilder = new DataParser.Builder();
 
@@ -64,17 +72,17 @@ public class Loader {
 
     /**
      * Sets a {@link DataStore} which will handle the backup of all data, prior sending it to
-     * elastic search If this is not set, no backup will happen during the indexing.
+     * elastic search If this is not set, no dataStore will happen during the indexing.
      * <p>
-     * The backup will happen between the data transformation and sending it to be indexed. Useful
-     * to check how the data was indexed or to redo the indexing.
+     * The dataStore will happen between the data transformation and sending it to be indexed.
+     * Useful to check how the data was indexed or to redo the indexing.
      *
      * @throws IllegalArgumentException if the argument is null
      */
-    public Builder backupTo(final DataStore backup) {
+    public Builder dataStore(final DataStore dataStore) {
       this.backup =
-          Optional.ofNullable(backup)
-              .orElseThrow(() -> new IllegalArgumentException("backup must not be null"));
+          Optional.ofNullable(dataStore)
+              .orElseThrow(() -> new IllegalArgumentException("dataStore must not be null"));
       return this;
     }
 
@@ -130,8 +138,11 @@ public class Loader {
 
     /**
      * Sets the index mapping properties structure. It is basically a list of tuples, containing the
-     * property name and its data type, defining how the elastic search index is structured This is
-     * a required configuration that must be provided before building a new {@link Loader}
+     * property name and its data type, defining how the elastic search index or type is structured.
+     * This is a required configuration, and must be provided before building a new {@link Loader}.
+     * <p>
+     * If no type is specified via {@link #toType(String)} this mappings will be considered as an
+     * index property mapping.
      * <p>
      * Using the index mappings below as reference:
      * <pre>{@code
@@ -158,14 +169,31 @@ public class Loader {
      *    }
      * </pre>
      *
+     * @return this builder instance
      * @throws IllegalArgumentException if list of mapping is null or empty
      */
-    public Builder mapDataWith(final List<DataMapping> mappings) {
+    public Builder dataMapping(final List<DataMapping> mappings) {
       if (mappings == null || mappings.isEmpty()) {
         throw new IllegalArgumentException(
-            "Mappings must is required and must contain at least one item");
+            "Index Mappings must not be null and must contain at least one item");
       }
       this.mappings = mappings;
+      return this;
+    }
+
+    /**
+     * Choose to index data into an Elastic Search Type. The specified name should be exactly the
+     * same name from the index that the data should be indexed.
+     * <p>
+     * Type's property mappings must specified via {@link #dataMapping(List)}
+     *
+     * @param type Required name of an existing Type
+     * @return this builder instance
+     * @throws IllegalArgumentException if the type is null or blank
+     */
+    public Builder toType(final String type) {
+      this.type = Optional.ofNullable(type).filter(s -> !s.isBlank())
+          .orElseThrow(() -> new IllegalArgumentException("Index type must not be null nor blank"));
       return this;
     }
 
@@ -175,7 +203,12 @@ public class Loader {
      * @throws IllegalArgumentException if not mappings were provided
      */
     public Loader build() {
-      final var reshaper = new Reshaper(mappings, dataParserBuilder.create());
+      final var dataParser = dataParserBuilder.create();
+
+      final var reshaper = Optional.ofNullable(type)
+          .map(t -> new Reshaper(t, mappings, dataParser))
+          .orElseGet(() -> Reshaper.withoutType(mappings, dataParser));
+
       return new Loader(client, backup, reshaper);
     }
   }
@@ -190,7 +223,7 @@ public class Loader {
    * DataMapping} and bulk indexing them.
    * <p>
    * As the name indicates the process to index data will happen via batches, which by default is
-   * setup to {@value maxElementsPerBulk} items per bulk. This can be overwritten through {@link
+   * setup to {@value DEFAULT_MAX_ELEMENTS} items per bulk. This can be overwritten through {@link
    * #setMaxElementsPerBulk(int) setMaxElementsPerBulk}, but be aware of the {@link ElasticClient}
    * limitations that is being used and the elastic infrastructure.
    */
@@ -199,7 +232,7 @@ public class Loader {
 
     private final Loader loader;
     private final Bulk bulk;
-    private int maxElementsPerBulk = 500;
+    private int maxElementsPerBulk = DEFAULT_MAX_ELEMENTS;
 
     /**
      * Sets the max number of item per bulk request
@@ -214,8 +247,8 @@ public class Loader {
     }
 
     /**
-     * Reads raw data defined by the {@link DataSource} and prepare and index it. If the optional
-     * {@link DataStore} is present, at Loader, the parsed data will be stored after each bulk
+     * Reads raw data defined by the {@link DataSource}, prepare and index it. If the optional
+     * {@link DataStore} is present at Loader, the parsed data will also be stored after each bulk
      * request.
      *
      * @throws DataStreamException      if the raw data can't be read or parsed.
@@ -232,8 +265,8 @@ public class Loader {
         var keepReading = true;
         while (keepReading) {
           try {
-            final var loadedNodes = bulkReadAndLoad(reader, criteria);
-            keepReading = !loadedNodes.isEmpty();
+            final var loadedData = bulkReadAndLoad(reader, criteria);
+            keepReading = !loadedData.getDocuments().isEmpty();
 
           } catch (SchemaException | IncorrectTypeException e) {
             throw new DataStreamException(
@@ -258,26 +291,26 @@ public class Loader {
       }
     }
 
-    protected List<Map<String, Object>> bulkReadAndLoad(
+    private ReshapedData bulkReadAndLoad(
         final DataReader reader, final DataReader.Criteria criteria)
         throws DataStreamException, SchemaException, IncorrectTypeException, IOException {
-      final var dataNodes = reader.read(criteria);
-      final var reshapedNodes = this.loader.reshaper.reshape(dataNodes);
+      final var documents = reader.read(criteria);
+      final var reshapedData = this.loader.reshaper.reshape(documents);
 
-      if (!reshapedNodes.isEmpty()) {
+      if (!reshapedData.getDocuments().isEmpty()) {
         var identifier = reader.getSource() + "_" + criteria.getPage();
-        this.bulk.index(identifier, reshapedNodes);
+        this.bulk.index(identifier, reshapedData);
         Optional.ofNullable(this.loader.backup)
-            .ifPresent(ds -> ds.store(identifier, reshapedNodes));
+            .ifPresent(ds -> ds
+                .store(identifier, Map.of(reshapedData.getType(), reshapedData.getDocuments())));
       }
-
-      return reshapedNodes;
+      return reshapedData;
     }
   }
 
   /**
    * Creates a new {@link BulkLoader} to process bulk requests to a given index. The number of items
-   * per bulk will be the default {@value BulkLoader#maxElementsPerBulk}.
+   * per bulk will be the default {@value DEFAULT_MAX_ELEMENTS}.
    * <p>
    * If the number of items per bulk must be different than the default, a similar method is also
    * available. Refer to {@link #toIndex(String, int)}
