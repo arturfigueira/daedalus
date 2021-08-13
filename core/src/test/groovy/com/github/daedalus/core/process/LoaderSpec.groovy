@@ -10,14 +10,14 @@ import com.github.daedalus.core.process.client.ElasticClient
 import com.github.daedalus.core.stream.DataStore
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Title
 import spock.lang.Unroll
 
+@Title("Loader Specifications")
 class LoaderSpec extends Specification {
 
     @Shared def validMappings = [new DataMapping("name", ElasticDataType.TEXT)]
     @Shared def validClient = Mock(ElasticClient)
-    @Shared def validDataStore = Mock(DataStore)
-    @Shared def validDateFormat = "dd-mm-yyyy"
 
     @Unroll
     def "bulk loader wont accept max elements equals or below zero"(val){
@@ -48,9 +48,9 @@ class LoaderSpec extends Specification {
     @Unroll
     def "should throws when bulk loading with invalid args"(index, sizePerBulk){
         given:
-        def loader = new Loader.Builder()
+        def loader = new LoaderBuilder()
                 .elasticClient(validClient)
-                .mapDataWith(validMappings)
+                .mappings(validMappings)
                 .build()
 
         when:
@@ -65,42 +65,15 @@ class LoaderSpec extends Specification {
 
     }
 
-    @Unroll
-    def "loader builder should throws with invalid arguments"(client,
-                                                              dataStore,
-                                                              locale,
-                                                              timeZone,
-                                                              dataFormat,
-                                                              mappings){
-        when:
-        new Loader.Builder()
-                .elasticClient(client)
-                .backupTo(dataStore)
-                .locale(locale)
-                .timeZone(timeZone)
-                .dateFormatPattern(dataFormat)
-                .mapDataWith(mappings)
-                .build()
 
-        then:
-        thrown(IllegalArgumentException)
-
-        where:
-        client << [null, validClient, validClient, validClient, validClient, validClient, validClient, validClient ]
-        dataStore << [validDataStore, null, validDataStore, validDataStore, validDataStore, validDataStore, validDataStore, validDataStore]
-        locale << [Locale.getDefault(), Locale.getDefault(), null, Locale.getDefault(), Locale.getDefault(), Locale.getDefault(), Locale.getDefault(), Locale.getDefault()]
-        timeZone << [TimeZone.getDefault(), TimeZone.getDefault(), TimeZone.getDefault(), null, TimeZone.getDefault(), TimeZone.getDefault(), TimeZone.getDefault(), TimeZone.getDefault() ]
-        dataFormat << [validDateFormat, validDateFormat, validDateFormat, validDateFormat, null, " ", validDateFormat, validDateFormat ]
-        mappings << [validMappings, validMappings, validMappings, validMappings, validMappings, validMappings, [], null ]
-    }
 
 
     def "when a dataStore is provided a backup to it should occurs"(){
         given:
         def dataStore = Mock(DataStore)
-        def loader = new Loader.Builder()
+        def loader = new LoaderBuilder()
                 .elasticClient(validClient)
-                .mapDataWith(validMappings)
+                .mappings(validMappings)
                 .backupTo(dataStore)
                 .build()
 
@@ -122,9 +95,9 @@ class LoaderSpec extends Specification {
     def "loader will split in batches depending on the max elements per bulk request"(){
         given:
         def elasticClient = Mock(ElasticClient)
-        def loader = new Loader.Builder()
+        def loader = new LoaderBuilder()
                 .elasticClient(elasticClient)
-                .mapDataWith(validMappings)
+                .mappings(validMappings)
                 .build()
 
         def dataReader = Mock(DataReader)
