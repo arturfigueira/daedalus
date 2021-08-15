@@ -1,5 +1,12 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic;
 
+import com.github.daedalus.core.elastic.data.BooleanType;
+import com.github.daedalus.core.elastic.data.CompletionType;
+import com.github.daedalus.core.elastic.data.DataType;
+import com.github.daedalus.core.elastic.data.DateType;
+import com.github.daedalus.core.elastic.data.IpType;
+import com.github.daedalus.core.elastic.data.NumberType;
+import com.github.daedalus.core.elastic.data.TextType;
 import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

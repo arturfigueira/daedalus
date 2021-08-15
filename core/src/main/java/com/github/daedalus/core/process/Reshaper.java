@@ -1,9 +1,9 @@
 package com.github.daedalus.core.process;
 
-import com.github.daedalus.core.data.DataParser;
-import com.github.daedalus.core.data.DataMapping;
-import com.github.daedalus.core.data.Document;
-import com.github.daedalus.core.data.IncorrectTypeException;
+import com.github.daedalus.core.elastic.DataParser;
+import com.github.daedalus.core.elastic.DataMapping;
+import com.github.daedalus.core.elastic.Document;
+import com.github.daedalus.core.elastic.IncorrectTypeException;
 
 import com.github.daedalus.core.stream.DataSource;
 import java.util.*;

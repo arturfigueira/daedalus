@@ -1,5 +1,7 @@
-package com.github.daedalus.core.data
+package com.github.daedalus.core.elastic
 
+import com.github.daedalus.core.elastic.DataMapping
+import com.github.daedalus.core.elastic.ElasticDataType
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll

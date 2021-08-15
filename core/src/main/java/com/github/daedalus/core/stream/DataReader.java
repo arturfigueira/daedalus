@@ -1,6 +1,6 @@
 package com.github.daedalus.core.stream;
 
-import com.github.daedalus.core.data.Document;
+import com.github.daedalus.core.elastic.Document;
 import lombok.Getter;
 import lombok.ToString;
 

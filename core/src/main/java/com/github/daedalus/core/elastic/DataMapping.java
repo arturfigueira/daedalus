@@ -1,4 +1,4 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic;
 
 import java.util.Optional;
 import lombok.EqualsAndHashCode;

@@ -2,7 +2,6 @@ package com.github.daedalus.core.process.client;
 
 import com.github.daedalus.core.process.client.ResultsQueue.Item;
 import com.github.daedalus.core.process.client.ResultsQueue.Result;
-import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,8 +31,8 @@ class BulkAsyncListener implements BulkProcessor.Listener {
   }
 
   @Override
-  public void afterBulk(
-      @NotNull long executionId, @NotNull BulkRequest request, @NotNull BulkResponse response) {
+  public void afterBulk(long executionId, @NonNull BulkRequest request,
+      @NonNull BulkResponse response) {
     final var result =
         Result.builder()
             .localIdentifier(this.localIdentifier)
@@ -57,10 +56,10 @@ class BulkAsyncListener implements BulkProcessor.Listener {
 
   private Item mapToItem(final BulkItemResponse bulkItemResponse) {
     var itemBuilder = Item.builder()
-            .action(bulkItemResponse.getOpType().toString());
+        .action(bulkItemResponse.getOpType().toString());
 
     Optional.ofNullable(bulkItemResponse.getResponse())
-        .ifPresent(o -> itemBuilder.id(((DocWriteResponse)o).getId()));
+        .ifPresent(o -> itemBuilder.id(((DocWriteResponse) o).getId()));
 
     if (bulkItemResponse.isFailed()) {
       final var failure = bulkItemResponse.getFailure();

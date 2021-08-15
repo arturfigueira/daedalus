@@ -1,9 +1,9 @@
 package com.github.daedalus.core.process
 
-import com.github.daedalus.core.data.DataMapping
-import com.github.daedalus.core.data.DataParser
-import com.github.daedalus.core.data.ElasticDataType
-import com.github.daedalus.core.data.Document
+import com.github.daedalus.core.elastic.DataMapping
+import com.github.daedalus.core.elastic.DataParser
+import com.github.daedalus.core.elastic.ElasticDataType
+import com.github.daedalus.core.elastic.Document
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Title

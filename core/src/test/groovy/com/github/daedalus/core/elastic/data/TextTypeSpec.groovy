@@ -1,4 +1,5 @@
-package com.github.daedalus.core.data
+package com.github.daedalus.core.elastic.data
+
 
 import spock.lang.Specification
 import spock.lang.Title

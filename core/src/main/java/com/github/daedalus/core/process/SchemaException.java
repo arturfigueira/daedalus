@@ -13,7 +13,7 @@ public class SchemaException extends Exception {
    *
    * @param message A string explaining the non-conformity
    */
-  public SchemaException(String message) {
+  SchemaException(String message) {
     super(message);
   }
 
@@ -22,7 +22,7 @@ public class SchemaException extends Exception {
    *
    * @param messages List containing descriptions of all non-conformities
    */
-  public SchemaException(List<String> messages) {
+  SchemaException(List<String> messages) {
     super(String.join(", ", messages));
   }
 }

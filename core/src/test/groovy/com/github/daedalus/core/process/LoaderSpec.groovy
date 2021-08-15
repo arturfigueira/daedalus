@@ -3,9 +3,9 @@ package com.github.daedalus.core.process
 
 import com.github.daedalus.core.stream.DataReader
 import com.github.daedalus.core.stream.DataSource
-import com.github.daedalus.core.data.DataMapping
-import com.github.daedalus.core.data.Document
-import com.github.daedalus.core.data.ElasticDataType
+import com.github.daedalus.core.elastic.DataMapping
+import com.github.daedalus.core.elastic.Document
+import com.github.daedalus.core.elastic.ElasticDataType
 import com.github.daedalus.core.process.client.ElasticClient
 import com.github.daedalus.core.stream.DataStore
 import spock.lang.Shared

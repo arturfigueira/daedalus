@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "org.sonarqube" version "3.3"
+    id 'org.javamodularity.moduleplugin' version '1.8.7' apply false
 }
 
 group 'com.daedalus'
@@ -24,6 +25,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
     apply plugin: 'jacoco'
+    apply plugin: "org.javamodularity.moduleplugin"
 
     sourceCompatibility=11
     targetCompatibility=11
@@ -49,6 +51,7 @@ subprojects {
         useJUnitPlatform()
         exclude "**/*ITSpec*", "**/*IntSpec*"
         finalizedBy jacocoTestReport // report is always generated after tests run
+
     }
 
     task integrationTest(type: Test) {

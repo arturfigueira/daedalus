@@ -1,8 +1,9 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic.data;
 
+import com.github.daedalus.core.elastic.IncorrectTypeException;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-class IpType implements DataType<String> {
+public class IpType implements DataType<String> {
 
     @Override
     public String parse(Object rawObject) throws IncorrectTypeException {

@@ -1,6 +1,6 @@
 package com.github.daedalus.plugins.json;
 
-import com.github.daedalus.core.data.Document;
+import com.github.daedalus.core.elastic.Document;
 import com.github.daedalus.core.stream.DataReader;
 import com.github.daedalus.core.stream.DataStreamException;
 import com.google.gson.Gson;

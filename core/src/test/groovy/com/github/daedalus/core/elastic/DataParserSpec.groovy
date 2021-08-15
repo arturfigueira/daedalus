@@ -1,5 +1,6 @@
-package com.github.daedalus.core.data
+package com.github.daedalus.core.elastic
 
+import com.github.daedalus.core.elastic.DataParser
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll

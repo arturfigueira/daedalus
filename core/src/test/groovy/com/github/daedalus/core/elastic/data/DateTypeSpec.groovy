@@ -1,5 +1,6 @@
-package com.github.daedalus.core.data
+package com.github.daedalus.core.elastic.data
 
+import com.github.daedalus.core.elastic.IncorrectTypeException
 import spock.lang.Specification
 import spock.lang.Unroll
 

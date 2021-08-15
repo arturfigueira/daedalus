@@ -1,5 +1,6 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic.data;
 
+import com.github.daedalus.core.elastic.IncorrectTypeException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,8 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-class DateType implements DataType<Date>, Formatable, ZoneTimeable, Localizable {
+@NoArgsConstructor()
+public class DateType implements DataType<Date>, Formatable, ZoneTimeable, Localizable {
   private Locale locale = Locale.getDefault();
   private TimeZone timeZone = TimeZone.getDefault();
   private String dateFormat = "yyyy-MM-dd HH:mm:ss";

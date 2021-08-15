@@ -1,5 +1,6 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic.data;
 
+import com.github.daedalus.core.elastic.IncorrectTypeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-class CompletionType implements DataType<Map<String, List<String>>> {
+public class CompletionType implements DataType<Map<String, List<String>>> {
 
   private static final String TERMS_PROPERTY = "input";
 

@@ -1,4 +1,4 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic;
 
 /**
  * Checked exception thrown when a parsing cannot be processed

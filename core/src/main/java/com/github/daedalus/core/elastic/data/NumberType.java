@@ -1,5 +1,6 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic.data;
 
+import com.github.daedalus.core.elastic.IncorrectTypeException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -8,11 +9,11 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-class NumberType<N extends Number> implements DataType<N> {
+public class NumberType<N extends Number> implements DataType<N> {
 
     protected Class<N> clazz;
 
-    NumberType(Class<N> clazz) {
+    public NumberType(Class<N> clazz) {
         this.clazz = clazz;
     }
 

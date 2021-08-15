@@ -1,6 +1,8 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic.data;
 
-class BooleanType implements DataType<Boolean> {
+import com.github.daedalus.core.elastic.IncorrectTypeException;
+
+public class BooleanType implements DataType<Boolean> {
 
     @Override
     public Boolean parse(Object rawObject) throws IncorrectTypeException {

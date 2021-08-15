@@ -1,5 +1,9 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic;
 
+import com.github.daedalus.core.elastic.data.DataType;
+import com.github.daedalus.core.elastic.data.Formatable;
+import com.github.daedalus.core.elastic.data.Localizable;
+import com.github.daedalus.core.elastic.data.ZoneTimeable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;

@@ -1,8 +1,9 @@
-package com.github.daedalus.core.data;
+package com.github.daedalus.core.elastic.data;
 
-class TextType implements DataType<String> {
+import com.github.daedalus.core.elastic.IncorrectTypeException;
 
-    //TODO: How to handle Date to String
+public class  TextType implements DataType<String> {
+
     @Override
     public String parse(Object rawObject) throws IncorrectTypeException {
         return rawObject == null ? null : rawObject.toString();
