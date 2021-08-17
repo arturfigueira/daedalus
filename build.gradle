@@ -3,7 +3,7 @@ plugins {
     id "org.sonarqube" version "3.3"
 }
 
-group 'com.daedalus'
+group 'com.github.daedalus'
 version '1.0.0-alpha'
 
 allprojects {
