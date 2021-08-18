@@ -1,3 +1,8 @@
-rootProject.name = 'daedalus'
+def prefix(prefix) {
+    rootProject.name = prefix
+    rootProject.children.each { it.name = "${prefix}-${it.name}" }
+}
 
-include 'core', 'plugins', 'app'
+include 'core', 'plugins'
+
+prefix('daedalus')
